@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard - Job Portal With AI Recommendation</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+</head>
+<body class="dashboard-body">
+  <div class="auth-overlay"></div>
+
+  <!-- NAVBAR -->
+  <nav class="navbar navbar-expand-lg dashboard-nav">
+    <div class="container-fluid px-3 px-md-4">
+      <div class="d-flex align-items-center gap-2">
+        <div class="dashboard-logo">
+          <span class="dashboard-logo-text">JP</span>
+        </div>
+        <div class="d-flex flex-column">
+          <span class="dashboard-brand-title">Job Portal AI</span>
+          <span class="dashboard-brand-subtitle">AI-powered job recommendations</span>
+        </div>
+      </div>
+
+      <button class="navbar-toggler text-white" type="button" data-bs-toggle="collapse" data-bs-target="#navContent">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse justify-content-end" id="navContent">
+        <ul class="navbar-nav me-3 mb-2 mb-lg-0 dashboard-nav-links">
+          <li class="nav-item">
+            <a class="nav-link active" href="#">
+              <i class="bi bi-stars me-1"></i>Recommendations
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">
+              <i class="bi bi-person-badge me-1"></i>Profile
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="admin.html">
+              <i class="bi bi-speedometer2 me-1"></i>Admin Panel
+            </a>
+          </li>
+        </ul>
+
+        <button class="btn dashboard-logout-btn btn-sm" id="logoutBtn">
+          <i class="bi bi-box-arrow-right me-1"></i> Logout
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- MAIN CONTENT -->
+  <main class="dashboard-main container py-4 py-md-5">
+    <div class="row align-items-center mb-4">
+      <div class="col-md-7">
+        <h3 class="dashboard-title mb-1">AI Recommended Jobs For You</h3>
+        <p class="dashboard-subtitle mb-0">
+          Based on your <span class="highlight-chip">skills</span>,
+          <span class="highlight-chip">preferred location</span>,
+          <span class="highlight-chip">job type</span> &
+          <span class="highlight-chip">experience level</span>.
+        </p>
+      </div>
+      <div class="col-md-5 mt-3 mt-md-0">
+        <div class="d-flex flex-wrap gap-2 justify-content-md-end">
+          <div class="dash-pill">
+            <span class="dash-pill-label">AI status</span>
+            <span class="dash-pill-value"><i class="bi bi-cpu me-1"></i>Active</span>
+          </div>
+          <div class="dash-pill">
+            <span class="dash-pill-label">Mode</span>
+            <span class="dash-pill-value"><i class="bi bi-lightning-charge me-1"></i>Smart match</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="dashboard-toolbar mb-4">
+      <button class="dash-filter-btn active" type="button">
+        <i class="bi bi-magic me-1"></i>Top matches
+      </button>
+      <button class="dash-filter-btn" type="button">
+        <i class="bi bi-geo-alt me-1"></i>Near me
+      </button>
+      <button class="dash-filter-btn" type="button">
+        <i class="bi bi-cloud me-1"></i>Remote
+      </button>
+      <button class="dash-filter-btn" type="button">
+        <i class="bi bi-sliders me-1"></i>Filters
+      </button>
+    </div>
+
+    <!-- Recommendation cards (JS fills this) -->
+    <div id="recommendations" class="row g-3"></div>
+
+    <!-- Message -->
+    <div id="dashboardMessage" class="mt-3 text-danger small"></div>
+
+    <!-- ===================== EXTERNAL JOBS (API) SECTION ===================== -->
+    <section class="mt-5">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <h4 class="dashboard-title mb-0">Live Remote Jobs (API)</h4>
+        <span class="badge bg-info bg-opacity-75 text-dark small">
+          Source: Remotive.com
+        </span>
+      </div>
+      <p class="dashboard-subtitle mb-2">
+        These jobs are fetched in real-time from a public remote jobs API and are separate from your local AI recommendations.
+      </p>
+
+      <!-- Search toolbar for API jobs -->
+      <div class="d-flex flex-wrap gap-2 mb-3">
+        <input
+          type="text"
+          id="externalJobsSearch"
+          class="form-control form-control-sm"
+          placeholder="Search API jobs (e.g. javascript, designer)"
+          style="max-width: 260px;"
+        />
+        <button class="btn btn-sm auth-btn-secondary" id="externalJobsSearchBtn" type="button">
+          <i class="bi bi-search me-1"></i>Search API Jobs
+        </button>
+      </div>
+
+      <div id="externalJobs" class="row g-3"></div>
+      <div id="externalJobsMessage" class="mt-2 text-muted small"></div>
+    </section>
+    <!-- ===================================================================== -->
+  </main>
+
+  <!-- Job Details Modal -->
+  <div class="modal fade" id="jobDetailsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content job-modal-content">
+        <div class="modal-header border-0">
+          <div>
+            <h5 class="modal-title" id="jobModalTitle"></h5>
+            <p class="mb-0 small text-muted" id="jobModalCompany"></p>
+          </div>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="row gy-3">
+            <div class="col-md-6">
+              <p class="mb-1"><strong>Location:</strong> <span id="jobModalLocation"></span></p>
+              <p class="mb-1"><strong>Type:</strong> <span id="jobModalType"></span></p>
+              <p class="mb-1"><strong>Experience:</strong> <span id="jobModalExp"></span></p>
+              <p class="mb-1"><strong>AI Score:</strong> <span id="jobModalScore"></span></p>
+            </div>
+            <div class="col-md-6">
+              <p class="mb-1"><strong>Matched Skills:</strong> <span id="jobModalMatchedSkills"></span></p>
+              <p class="mb-1"><strong>Location Match:</strong> <span id="jobModalLocMatch"></span></p>
+              <p class="mb-1"><strong>Job Type Match:</strong> <span id="jobModalTypeMatch"></span></p>
+              <p class="mb-1"><strong>Experience Match:</strong> <span id="jobModalExpMatch"></span></p>
+            </div>
+            <div class="col-12">
+              <p class="mb-1"><strong>Required Skills:</strong></p>
+              <div id="jobModalSkillsTags"></div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer border-0 d-flex justify-content-between">
+          <small class="text-muted">Review the job details and apply if it matches your profile.</small>
+          <button type="button" class="btn auth-btn-primary btn-sm" id="jobModalApplyBtn">
+            <i class="bi bi-send me-1"></i> Apply Now
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="js/api.js"></script>
+</body>
+</html>
